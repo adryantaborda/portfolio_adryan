@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { motion } from "framer-motion";
 import type { Transition } from "framer-motion";
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import portraitSrc from "../adryan_taborda.png";
 import logoSrc from "../logoadryantaborda.png";
 
@@ -30,9 +30,48 @@ function useSectionProgress() {
 }
 
 export default function LandingPage() {
+  const [sections, setSections] = useState<HTMLElement[]>([]);
+  const [isScrolling, setIsScrolling] = useState(false);
+
+  useEffect(() => {
+    const found = Array.from(
+      document.querySelectorAll<HTMLElement>(".page-shell .section")
+    );
+    setSections(found);
+  }, []);
+
+  const handleWheel: React.WheelEventHandler<HTMLDivElement> = (event) => {
+    if (!sections.length || isScrolling) return;
+
+    const delta = event.deltaY;
+    if (Math.abs(delta) < 10) return;
+
+    event.preventDefault();
+
+    const viewportCenter = window.innerHeight / 2;
+    const currentIndex =
+      sections.findIndex((section) => {
+        const rect = section.getBoundingClientRect();
+        return rect.top <= viewportCenter && rect.bottom >= viewportCenter;
+      }) || 0;
+
+    const direction = delta > 0 ? 1 : -1;
+    const nextIndex = Math.min(
+      sections.length - 1,
+      Math.max(0, currentIndex + direction)
+    );
+
+    if (nextIndex === currentIndex) return;
+
+    setIsScrolling(true);
+    sections[nextIndex].scrollIntoView({ behavior: "smooth" });
+    window.setTimeout(() => setIsScrolling(false), 750);
+  };
+
   return (
-    <main className="page-shell">
+    <main className="page-shell" onWheel={handleWheel}>
       <HeroSection />
+      <ScrollTestSection />
     </main>
   );
 }
@@ -49,6 +88,11 @@ function HeroSection() {
         animate="enter"
         transition={spring}
       >
+        <div className="hero-scroll-indicator" aria-hidden="true">
+          <div className="hero-scroll-mouse">
+            <span className="hero-scroll-wheel" />
+          </div>
+        </div>
         <Image
           src={logoSrc}
           alt="Adryan Taborda logo"
@@ -74,6 +118,16 @@ function HeroSection() {
           />
         </div>
       </motion.div>
+    </section>
+  );
+}
+
+function ScrollTestSection() {
+  const { ref } = useSectionProgress();
+
+  return (
+    <section className="section" ref={ref}>
+      <div className="section-inner section-inner-empty" />
     </section>
   );
 }

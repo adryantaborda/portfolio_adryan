@@ -6,6 +6,8 @@ import type { Transition } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 import portraitSrc from "../adryan_taborda.png";
 import logoSrc from "../logoadryantaborda.png";
+import scFlagSrc from "../25-santa-catarina-full.svg";
+import projectsImage from "../projetos_3.png";
 
 const spring = {
   type: "spring" as const,
@@ -32,12 +34,29 @@ function useSectionProgress() {
 export default function LandingPage() {
   const [sections, setSections] = useState<HTMLElement[]>([]);
   const [isScrolling, setIsScrolling] = useState(false);
+  const [showScrollUp, setShowScrollUp] = useState(false);
+  const shellRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     const found = Array.from(
       document.querySelectorAll<HTMLElement>(".page-shell .section")
     );
     setSections(found);
+  }, []);
+
+  useEffect(() => {
+    const shell = shellRef.current;
+    if (!shell) return;
+
+    const handleScroll = () => {
+      const top = shell.scrollTop;
+      const threshold = window.innerHeight * 0.4;
+      setShowScrollUp(top > threshold);
+    };
+
+    handleScroll();
+    shell.addEventListener("scroll", handleScroll, { passive: true });
+    return () => shell.removeEventListener("scroll", handleScroll);
   }, []);
 
   const handleWheel: React.WheelEventHandler<HTMLDivElement> = (event) => {
@@ -71,15 +90,34 @@ export default function LandingPage() {
     window.setTimeout(() => setIsScrolling(false), 750);
   };
 
+  const scrollToTop = () => {
+    if (!sections.length) return;
+    setIsScrolling(true);
+    sections[0].scrollIntoView({ behavior: "smooth" });
+    window.setTimeout(() => {
+      setIsScrolling(false);
+      setShowScrollUp(false);
+    }, 750);
+  };
+
   return (
-    <main className="page-shell" onWheel={handleWheel}>
-      <HeroSection />
+    <main
+      ref={shellRef}
+      className="page-shell"
+      onWheel={handleWheel}
+    >
+      <HeroSection showScrollUp={showScrollUp} onScrollTop={scrollToTop} />
       <ScrollTestSection />
     </main>
   );
 }
 
-function HeroSection() {
+type HeroSectionProps = {
+  showScrollUp: boolean;
+  onScrollTop: () => void;
+};
+
+function HeroSection({ showScrollUp, onScrollTop }: HeroSectionProps) {
   const { ref } = useSectionProgress();
 
   return (
@@ -92,6 +130,16 @@ function HeroSection() {
         transition={spring}
       >
         <div className="hero-scroll-indicator" aria-hidden="true">
+          {showScrollUp && (
+            <button
+              type="button"
+              className="hero-scroll-up"
+              onClick={onScrollTop}
+              aria-label="Voltar para o topo"
+            >
+              <span className="hero-scroll-up-icon" />
+            </button>
+          )}
           <div className="hero-scroll-mouse">
             <span className="hero-scroll-wheel" />
           </div>
@@ -129,8 +177,72 @@ function ScrollTestSection() {
   const { ref } = useSectionProgress();
 
   return (
-    <section className="section" ref={ref}>
-      <div className="section-inner section-inner-empty" />
+    <section className="section section-top" ref={ref}>
+      <div className="section-about-shell">
+        <div className="section-about-top">
+          <h2 className="heading-xl">QUEM SOU EU?</h2>
+          <div className="section-about-body">
+            <p>
+              TRABALHO NA INTERSEÇÃO ENTRE PRODUTO, UX E ENGENHARIA, AJUDANDO
+              EQUIPES A TRANSFORMAR FLUXOS INDUSTRIAIS COMPLEXOS EM INTERFACES
+              CALMAS, LEGÍVEIS E FÁCEIS DE OPERAR POR HORAS SEGUIDAS.
+            </p>
+          </div>
+        </div>
+
+        <div className="section-about-bottom">
+          <div className="section-about-cards">
+            <div className="about-card">
+              <div className="about-card-label">TECNOLOGIAS</div>
+              <div className="about-card-title">STACK PREFERIDA</div>
+              <p className="about-card-body">
+                NEXT.JS, REACT, TYPESCRIPT, FRAMER MOTION, NODE.JS E UMA
+                ATENÇÃO CONSTANTE A PERFORMANCE, PERFIS DE CARGA E
+                OBSERVABILIDADE.
+              </p>
+              <p className="about-card-foot">
+                TAMBÉM COM EXPERIÊNCIA EM APIS REST/GRAPHQL, WEBSOCKETS PARA
+                TEMPO REAL E INTEGRAÇÃO DE DESIGN SYSTEMS DO FIGMA PARA CÓDIGO.
+              </p>
+            </div>
+
+            <div className="about-card">
+              <div className="about-card-label">LOCALIZAÇÃO</div>
+              <div className="about-card-title about-card-title-row">
+                <Image
+                  src={scFlagSrc}
+                  alt="Bandeira de Santa Catarina"
+                  width={28}
+                  height={20}
+                  className="about-card-flag"
+                  priority={false}
+                />
+                <span>BARRA VELHA · SANTA CATARINA · BRASIL</span>
+              </div>
+              <p className="about-card-body">
+                BASE EM BARRA VELHA, COM DESLOCAMENTO FÁCIL PARA JOINVILLE,
+                ITAJAÍ, BALNEÁRIO CAMBORIÚ E CIDADES PRÓXIMAS PARA ENCONTROS DE
+                PRODUTO, VISITAS A CAMPO OU SESSÕES PRESENCIAIS DE PLANEJAMENTO.
+              </p>
+              <p className="about-card-foot">
+                DISPONÍVEL PARA TRABALHO REMOTO CONTÍNUO, COM PRESENÇA PONTUAL
+                NA REGIÃO SUL QUANDO O PROJETO PEDE ALINHAMENTO MAIS PRÓXIMO.
+              </p>
+            </div>
+          </div>
+
+          <div className="section-about-image-frame">
+            <Image
+              src={projectsImage}
+              alt="Prévia de projetos em telas"
+              fill
+              priority={false}
+              sizes="(min-width: 1200px) 40vw, (min-width: 900px) 50vw, 90vw"
+              className="section-about-image"
+            />
+          </div>
+        </div>
+      </div>
     </section>
   );
 }

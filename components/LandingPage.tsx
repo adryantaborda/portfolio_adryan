@@ -41,12 +41,15 @@ export default function LandingPage() {
   }, []);
 
   const handleWheel: React.WheelEventHandler<HTMLDivElement> = (event) => {
-    if (!sections.length || isScrolling) return;
+    if (!sections.length) return;
+
+    // Impede que o navegador faça o scroll “normal”
+    event.preventDefault();
+
+    if (isScrolling) return;
 
     const delta = event.deltaY;
     if (Math.abs(delta) < 10) return;
-
-    event.preventDefault();
 
     const viewportCenter = window.innerHeight / 2;
     const currentIndex =

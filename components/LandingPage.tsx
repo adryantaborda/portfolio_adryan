@@ -8,6 +8,7 @@ import portraitSrc from "../adryan_taborda.png";
 import logoSrc from "../logoadryantaborda.png";
 import scFlagSrc from "../25-santa-catarina-full.svg";
 import projectsImage from "../projetos_3.png";
+import docmasterLogo from "../docmaster.png";
 
 const spring = {
   type: "spring" as const,
@@ -60,7 +61,7 @@ export default function LandingPage() {
   }, []);
 
   const handleWheel: React.WheelEventHandler<HTMLDivElement> = (event) => {
-    if (!sections.length) return;
+    if (!sections.length || !shellRef.current) return;
 
     // Impede que o navegador faça o scroll “normal”
     event.preventDefault();
@@ -70,12 +71,10 @@ export default function LandingPage() {
     const delta = event.deltaY;
     if (Math.abs(delta) < 10) return;
 
-    const viewportCenter = window.innerHeight / 2;
-    const currentIndex =
-      sections.findIndex((section) => {
-        const rect = section.getBoundingClientRect();
-        return rect.top <= viewportCenter && rect.bottom >= viewportCenter;
-      }) || 0;
+    const shell = shellRef.current;
+    const sectionHeight = window.innerHeight;
+    const rawIndex = shell.scrollTop / sectionHeight;
+    const currentIndex = Math.round(rawIndex);
 
     const direction = delta > 0 ? 1 : -1;
     const nextIndex = Math.min(
@@ -108,6 +107,7 @@ export default function LandingPage() {
     >
       <HeroSection showScrollUp={showScrollUp} onScrollTop={scrollToTop} />
       <ScrollTestSection />
+      <EmptySection />
     </main>
   );
 }
@@ -241,6 +241,27 @@ function ScrollTestSection() {
               className="section-about-image"
             />
           </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function EmptySection() {
+  const { ref } = useSectionProgress();
+
+  return (
+    <section className="section section-top" ref={ref}>
+      <div className="empty-section-shell">
+        <div className="empty-section-title-row">
+          <Image
+            src={docmasterLogo}
+            alt="Logo DocMaster IA"
+            width={60}
+            height={60}
+            className="empty-section-logo"
+          />
+          <h2 className="heading-xl empty-section-heading">DOCMASTER IA</h2>
         </div>
       </div>
     </section>

@@ -871,3 +871,25 @@ body::-webkit-scrollbar {
   }
 }
 
+.empty-section-shell {
+  max-width: 1120px;
+  width: 100%;
+  text-align: left;
+}
+
+.empty-section-title-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.9rem;
+}
+
+.empty-section-logo {
+  width: 72px;
+  height: auto;
+}
+
+.empty-section-heading {
+  margin: 0;
+  font-size: clamp(3rem, 5vw, 4rem);
+}
+

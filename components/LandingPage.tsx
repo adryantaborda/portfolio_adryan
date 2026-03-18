@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import type { Transition } from "framer-motion";
 import { useRef } from "react";
 import portraitSrc from "../adryan_taborda.png";
+import logoSrc from "../logoadryantaborda.png";
 
 const spring = {
   type: "spring" as const,
@@ -48,6 +49,14 @@ function HeroSection() {
         animate="enter"
         transition={spring}
       >
+        <Image
+          src={logoSrc}
+          alt="Adryan Taborda logo"
+          width={140}
+          height={140}
+          className="hero-logo-floating"
+          priority={false}
+        />
         <div className="hero-portfolio-wrapper">
           <div className="hero-portfolio-name">ADRYAN TABORDA</div>
           <h1 className="hero-portfolio-heading hero-portfolio-heading-only">
